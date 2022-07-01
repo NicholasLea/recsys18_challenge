@@ -31,6 +31,19 @@ python evaluation/split.py --path dataset --input_playlists playlists.csv --inpu
         --output_items_split_x items_test_x.csv \
         --output_items_split_y items_test_y.csv \
         --scale 1000
+    --win
+    python evaluation/split.py \
+        --path D:/Dataset/spotify_million_playlist_dataset \
+        --input_playlists playlists.csv \
+        --input_items items.csv \
+        --output_playlists playlists_training_validation.csv \
+        --output_items items_training_validation.csv \
+        --output_playlists_split playlists_test.csv \
+        --output_playlists_split_pid playlists_test_pid.csv \
+        --output_items_split items_test.csv \
+        --output_items_split_x items_test_x.csv \
+        --output_items_split_y items_test_y.csv \
+        --scale 1000
 
 python evaluation/split.py --path dataset --input_playlists playlists_training_validation.csv --input_items items_training_validation.csv --output_playlists playlists_training.csv --output_items items_training.csv --output_playlists_split playlists_validation.csv --output_playlists_split_pid playlists_validation_pid.csv --output_items_split items_validation.csv --output_items_split_x items_validation_x.csv --output_items_split_y items_validation_y.csv --scale 1000
     python evaluation/split.py \
