@@ -23,9 +23,9 @@ tracks_writer = csv.writer(tracks_file)
 
 tracks = set()
 
-for mpd_slice in listdir(args.mpd_path):
+for seq, mpd_slice in enumerate((listdir(args.mpd_path))):
     with open(path.join(args.mpd_path, mpd_slice), encoding='utf8') as json_file:
-        print("\tReading file " + mpd_slice)
+        print("\t"+str(seq)+",Reading file " + mpd_slice)
         json_slice = json.load(json_file)
 
         for playlist in json_slice['playlists']:
@@ -36,7 +36,7 @@ for mpd_slice in listdir(args.mpd_path):
                                        playlist['modified_at'], playlist['duration_ms']])
 
             if 'description' in playlist:
-                playlists_writer.writerow([playlist['pid'], playlist['description']])
+                playlists_descr_writer.writerow([playlist['pid'], playlist['description']])
 
             for track in playlist['tracks']:
                 items_writer.writerow([playlist['pid'], track['pos'], track['track_uri']])
