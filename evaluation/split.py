@@ -7,6 +7,7 @@ random.seed(1)
 
 parser = argparse.ArgumentParser(description="Split MPD")
 
+# #原版
 parser.add_argument('--path', default=None, required=True)
 parser.add_argument('--input_playlists', default=None, required=True)
 parser.add_argument('--input_items', default=None, required=True)
@@ -19,12 +20,26 @@ parser.add_argument('--output_items_split_x', default=None, required=True)
 parser.add_argument('--output_items_split_y', default=None, required=True)
 parser.add_argument('--scale', type=int, required=True)
 
+#Lk方便运行版
+# 第一次拆分
+# parser.add_argument('--path', default='D:/Dataset/spotify_million_playlist_dataset', required=False, type=str)
+# parser.add_argument('--input_playlists', default='playlists.csv', required=False, type=str)
+# parser.add_argument('--input_items', default='items.csv', required=False, type=str)
+# parser.add_argument('--output_playlists', default='playlists_training_validation.csv', required=False, type=str)
+# parser.add_argument('--output_items', default='items_training_validation.csv', required=False, type=str)
+# parser.add_argument('--output_playlists_split', default='playlists_test.csv', required=False, type=str)
+# parser.add_argument('--output_playlists_split_pid', default='playlists_test_pid.csv', required=False, type=str)
+# parser.add_argument('--output_items_split', default='items_test.csv', required=False, type=str)
+# parser.add_argument('--output_items_split_x', default='items_test_x.csv', required=False, type=str)
+# parser.add_argument('--output_items_split_y', default='items_test_y.csv', required=False, type=str)
+# parser.add_argument('--scale', type=int, required=False)
+
 args = parser.parse_args()
 
-items = {}
-tracks = {}
-playlists = {}
-playlists_pid = []
+items = {} #key:pid, value:所以此pid下的[pid, track在本列表中的jdx，track_uri]
+tracks = {} #key:trackid, value:出现次数
+playlists = {} #key:pid, value:pid完整信息
+playlists_pid = [] #pid列表
 
 print("Reading the playlists")
 with open(path.join(args.path, args.input_playlists), 'r', newline='', encoding='utf8') as playlists_file:
@@ -36,10 +51,14 @@ with open(path.join(args.path, args.input_playlists), 'r', newline='', encoding=
         playlists_pid.append(pid)
 
 print("Reading the items")
+# # 这个表里存了3个列，[pid, track在本列表中的jdx，track_uri]
 with open(path.join(args.path, args.input_items), 'r', newline='', encoding='utf8') as items_file:
     items_reader = csv.reader(items_file)
 
-    for item in items_reader:
+    for idx, item in enumerate(items_reader):
+        #方便观察进度
+        if idx % 10000 == 0:
+            print('idx:', idx)
         pid = item[0]
         track_uri = item[2]
 
@@ -71,6 +90,18 @@ for candidate_pid in candidate_pid_list:
     # Innocent until proven guilty
     good_candidate = True
 
+    #！！！在colab上仔细测试了半天，我发现这段代码好像有问题。根据论文的含义，需要挑选各1%（10000个）给test和validation，并且由下面的代码
+    #可以知道划分是在playlist级别上的，也就是整个playlist要么整个划分给train/val/test之一，不会分开。那么下面代码分为2部分，首先判断本次看的
+    #playlist有没有哪个track是最后一次出现，如果是，则这个playslist就不被分到val/test里。比如track='beat it'在3个playlist出现过，但是本
+    #次扫描的这个playlist里的beat it是第三个即最后一个。一旦出现一个这样的track，整个playlist就留在train里。我觉得这个设定没啥意义，有点太刻意
+    #了。刻意让train里包含尽可能全的信息，不知道这样好不好....
+    # 更大的问题再后面，作者设置每个if分支里的good_candidate为false，那么就是只有这10种同时不满足才可能被分出去，那么good_candidate应该
+    # 是true才行。我在colab里验证了他是错的。其实我觉得他们弄的有点复杂了，不如直接选1000个好了。而且no title的好像是不存在的吧！所有的
+    # playlists都有title啊！
+
+    #！！！更新，他的代码好像没有问题！在训练集里是没有10个类别之分的，这里全部都有playlist title，也全部都有至少5个tracks。但是在challange
+    #上有10个类别，所以需要在训练集模拟10个类别出来分别放到val\test里。那么做这个操作的前提就是这个列表的长度必须是足够长的，比如要模拟challange
+    #里给出5个的那个类，必须类的长度要大于5。另外因为测试集里所有的track都在训练集里出现过，所以确保track都进入过train也是有意义的。
     # Check that pid does not contain unique tracks
     for item in candidate_items:
         track_uri = item[2]
