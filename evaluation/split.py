@@ -265,9 +265,13 @@ for playlist in playlists.values():
             items_y = items[pid][100:]
 
         # Sort tracks by position
-        items_xy = sorted(items_xy, key=lambda row: int(row[1]))
-        items_x = sorted(items_x, key=lambda row: int(row[1]))
-        items_y = sorted(items_y, key=lambda row: int(row[1]))
+        # 这里是排序，但是我觉得这个很不必要。对于y和x都包含一部分乱序的数据，从而让数据更真实的反应最后的结果比较好。所以我注释掉了这部分。
+        # 并且我已经验证了在item.csv里，一个playslist里的数据都是有序的。除了这里专门shuffle的以外，所有处理后的数据也是有序的。
+        # print('items_xy bef:',items_xy)
+        # items_xy = sorted(items_xy, key=lambda row: int(row[1]))
+        # items_x = sorted(items_x, key=lambda row: int(row[1]))
+        # items_y = sorted(items_y, key=lambda row: int(row[1]))
+        # print('items_xy aft:',items_xy)
 
         output_playlists_split_writer.writerow([pid, playlist_name,
                                                 len(items_x), len(items_y),
