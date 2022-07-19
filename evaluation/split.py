@@ -274,13 +274,14 @@ for playlist in playlists.values():
                                                 len(items_x + items_y)])
 
         for item in items_xy:
-            # output_items_split_writer.writerow(item)
-            output_items_split_writer.writerow([*item, playlist_name])
+            # 我忽然有觉得把playlist_name带进去不是一个好事，存储文件太大，不利于后面别人复现
+            output_items_split_writer.writerow(item)
+            # output_items_split_writer.writerow([*item, playlist_name])
 
         for item in items_x:
-            # output_items_split_x_writer.writerow(item)
-            output_items_split_x_writer.writerow([*item, playlist_name])
+            output_items_split_x_writer.writerow(item)
+            # output_items_split_x_writer.writerow([*item, playlist_name])
 
         for item in items_y:
-            # output_items_split_y_writer.writerow(item)
-            output_items_split_y_writer.writerow([*item, playlist_name])
+            output_items_split_y_writer.writerow(item)
+            # output_items_split_y_writer.writerow([*item, playlist_name])
