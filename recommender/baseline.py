@@ -77,6 +77,7 @@ class Word2Rec(AbstractRecommender):
         else:
             # Train the model
             sentences = sentence.Iterator(self.dataset, self.train_playlists, self.train_items, mode)
+            # print('sentences', list(sentences))
             model = Word2Vec(sentences, workers=4, min_count=0)
 
             # Save the model
@@ -88,6 +89,7 @@ class Word2Rec(AbstractRecommender):
 
     def recommend(self, playlist):
         seeds = list(map(lambda x: str(x), playlist[self.mode.value]))
+        # print('seeds', seeds)
 
         if len(seeds) > 0:
             n = 500 - len(seeds)
